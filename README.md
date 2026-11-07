@@ -45,6 +45,74 @@ git clone https://github.com/ttulttul/pairwise-design-judging
 cp -r pairwise-design-judging/skills/pairwise-design-judging ~/.claude/skills/   # or ~/.codex/skills/
 ```
 
+## Using it in a session
+
+You don't run the scripts yourself. You describe the job in an interactive agent session, and the agent follows `SKILL.md`: it gates and screenshots the candidates, writes `entries.json`, runs `plan.py`, starts one judge sub-agent per planned task, records the verdicts and runs `bt.py`. The agent loads the skill on its own when your request matches the skill's description. You can also name the skill to load it explicitly, as in the examples below.
+
+### Claude Code
+
+Start `claude` in your project and type a slash command followed by your request. With the plugin installed, the command is `/pairwise-design-judging:pairwise-design-judging`. With the standalone skill in `~/.claude/skills/`, it is `/pairwise-design-judging`.
+
+```
+> /pairwise-design-judging:pairwise-design-judging Three redesigns of the dashboard
+  are on branches redesign-a, redesign-b and redesign-c. main is what's shipped.
+  Judge each one against main on the home and heating views, using Sonnet and Opus
+  judges, and tell me whether any of them should be merged.
+```
+
+A typical run looks like this (abridged):
+
+```
+⏺ Skill(pairwise-design-judging)
+⏺ Bash(npm test)  ×4 checkouts — all pass
+⏺ Bash(node scripts/shoot.mjs …)  home, heating × 1440/390 × light/dark, tiled
+⏺ Write(judge/entries.json)
+⏺ Bash(python3 …/scripts/plan.py --entries judge/entries.json --out judge --round 1
+       --views home,heating --models claude-sonnet-5-5,claude-opus-5-5)
+  ⎿ 12 tasks written to judge/plan.tsv
+⏺ 12 × Agent(Compare the two user interface designs…)  in parallel, model per plan.tsv
+⏺ Bash(printf '3f9c1a\tX+\n…' >> judge/verdicts.tsv)
+⏺ Bash(python3 …/scripts/bt.py judge --entries judge/entries.json)
+  ⎿ redesign-b   P(beats incumbent) 0.58  [0.47, 0.68]  close: add judgements
+⏺ redesign-b is close on heating, so I'm adding one more order-swapped group for that pair.
+⏺ Bash(python3 …/scripts/plan.py … --only main,redesign-b --views heating --round 1)
+  …
+⏺ Decision: merge redesign-b. P(beats main) 0.71 [0.60, 0.80]. redesign-a and
+  redesign-c did not beat main. Position bias: 11/22 decided verdicts favoured the left (50%).
+```
+
+Follow-up prompts in the same session continue the loop. For example: "Summarise the judges' critiques of redesign-a and redesign-c as a brief for the next round of designers", or "Merge redesign-b and plan round 2 with a ladder comparison against the original baseline."
+
+### Codex
+
+Start `codex` in your project and mention the skill with `$` in the composer. Type `$` (or run `/skills`) to pick it from the list.
+
+```
+› $pairwise-design-judging I have screenshots of the current settings page in
+  shots/incumbent and of two candidates in shots/c1 and shots/c2, already tiled and
+  named <view>-<size>-<scheme>. Judge both against the incumbent on the settings and
+  profile views, and tell me which one to ship.
+```
+
+Codex follows the same protocol (abridged):
+
+```
+• Using skill pairwise-design-judging
+• Ran ls shots/*  — 16 screenshots per entry, views: settings, profile
+• Wrote judge/entries.json  (incumbent: cur; candidates: c1, c2)
+• Ran python3 ~/.codex/skills/pairwise-design-judging/scripts/plan.py --entries judge/entries.json
+      --out judge --round 1 --views settings,profile --models gpt-6.1-sol,gpt-6.1
+  └ 8 tasks written to judge/plan.tsv
+• Spawned 8 judge sub-agents, one per row of judge/plan.tsv
+• Appended 8 verdicts to judge/verdicts.tsv
+• Ran python3 …/scripts/bt.py judge --entries judge/entries.json
+  └ c1   P(beats incumbent) 0.79  [0.66, 0.88]  MERGE-ELIGIBLE
+    c2   P(beats incumbent) 0.44  [0.33, 0.56]
+─ Ship c1. It is confidently better than the current page on both views; c2 is not.
+```
+
+Each tool's sub-agents run only that vendor's models: Claude models in Claude Code, OpenAI models in Codex. Pass `--models` only the models your session can start. Mixing judge families (the setup the skill was built for) needs an orchestrator that can start both kinds of judge. If the plan names a model the session can't run, the agent should tell you rather than quietly substitute another model.
+
 ## Packaging
 
 One repo serves both ecosystems:
