@@ -1,0 +1,18 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "pairwise-design-judging",
+  "description": "Pairwise, bias-aware judging for AI design loops.",
+  "owner": {
+    "name": "Ken Simpson",
+    "url": "https://github.com/ttulttul"
+  },
+  "plugins": [
+    {
+      "name": "pairwise-design-judging",
+      "description": "Judge competing UI and design candidates with blind, order-swapped pairwise comparisons and a Bradley–Terry fit instead of saturating 0–10 scores.",
+      "source": "./",
+      "category": "development",
+      "homepage": "https://github.com/ttulttul/pairwise-design-judging"
+    }
+  ]
+}
