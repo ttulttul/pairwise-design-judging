@@ -101,7 +101,7 @@ Codex follows the same protocol (abridged):
 • Ran ls shots/*  — 16 screenshots per entry, views: settings, profile
 • Wrote judge/entries.json  (incumbent: cur; candidates: c1, c2)
 • Ran python3 ~/.codex/skills/pairwise-design-judging/scripts/plan.py --entries judge/entries.json
-      --out judge --round 1 --views settings,profile --models gpt-6.1-sol,gpt-6.1
+      --out judge --round 1 --views settings,profile --models gpt-6.1-sol,gpt-6-astra
   └ 8 tasks written to judge/plan.tsv
 • Spawned 8 judge sub-agents, one per row of judge/plan.tsv
 • Appended 8 verdicts to judge/verdicts.tsv
