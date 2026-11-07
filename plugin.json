@@ -1,0 +1,14 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "pairwise-design-judging",
+  "version": "1.1.0",
+  "description": "Judge competing UI and design candidates with blind, order-swapped pairwise comparisons and a Bradley–Terry fit instead of saturating 0–10 scores.",
+  "author": {
+    "name": "Ken Simpson",
+    "url": "https://github.com/ttulttul"
+  },
+  "homepage": "https://github.com/ttulttul/pairwise-design-judging",
+  "repository": "https://github.com/ttulttul/pairwise-design-judging",
+  "license": "MIT",
+  "keywords": ["design", "evaluation", "llm-as-judge", "pairwise", "bradley-terry", "ui"]
+}

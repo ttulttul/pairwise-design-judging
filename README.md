@@ -30,11 +30,33 @@ The scripts use only the Python 3 standard library.
 /plugin install pairwise-design-judging@pairwise-design-judging
 ```
 
-**Standalone skill** (Claude Code, or any agent that reads `SKILL.md` skills):
+**Codex plugin:**
 ```sh
-git clone https://github.com/ttulttul/pairwise-design-judging
-cp -r pairwise-design-judging/skills/pairwise-design-judging ~/.claude/skills/
+codex plugin marketplace add ttulttul/pairwise-design-judging
+codex plugin add pairwise-design-judging@pairwise-design-judging
 ```
+In the ChatGPT desktop app, you can instead add the marketplace and install it from the Plugins Directory.
+
+**Standalone skill** (any agent that reads `SKILL.md` skills):
+```sh
+npx skills add ttulttul/pairwise-design-judging
+# or copy it yourself:
+git clone https://github.com/ttulttul/pairwise-design-judging
+cp -r pairwise-design-judging/skills/pairwise-design-judging ~/.claude/skills/   # or ~/.codex/skills/
+```
+
+## Packaging
+
+One repo serves both ecosystems:
+
+| File | Used by |
+|---|---|
+| `plugin.json` | Portable [agent-plugins](https://agent-plugins.org) manifest (OpenAI Codex / ChatGPT) |
+| `.agents/plugins/marketplace.json` | Codex marketplace (`codex plugin marketplace add`) |
+| `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json` | Claude Code plugin and marketplace |
+| `skills/pairwise-design-judging/` | The skill itself, in the [Agent Skills](https://agentskills.io) format |
+
+`tools/build-zip.sh` builds `dist/pairwise-design-judging-<version>.zip` for the OpenAI plugin submission portal. CI checks that `plugin.json` matches its schema and that the two manifests carry the same version.
 
 ## Quick start
 

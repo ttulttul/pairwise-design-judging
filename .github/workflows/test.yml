@@ -18,8 +18,28 @@ jobs:
         run: python -m unittest discover -s tests -v
       - name: Manifests are valid JSON
         run: |
-          python -m json.tool .claude-plugin/plugin.json > /dev/null
-          python -m json.tool .claude-plugin/marketplace.json > /dev/null
+          for f in plugin.json .claude-plugin/plugin.json .claude-plugin/marketplace.json .agents/plugins/marketplace.json; do
+            python -m json.tool "$f" > /dev/null
+          done
+      - name: OpenAI portable manifest matches the agent-plugins schema
+        run: |
+          pip install --quiet jsonschema
+          python - <<'PY'
+          import json, urllib.request, jsonschema
+          schema_url = json.load(open('plugin.json'))['$schema']
+          schema = json.load(urllib.request.urlopen(schema_url))
+          jsonschema.validate(json.load(open('plugin.json')), schema)
+          m = json.load(open('.agents/plugins/marketplace.json'))
+          for p in m['plugins']:
+              assert p['source']['path'].startswith('./'), p
+              assert {'installation', 'authentication'} <= set(p['policy']), p
+              assert p.get('category'), p
+          versions = {json.load(open(f))['version'] for f in ('plugin.json', '.claude-plugin/plugin.json')}
+          assert len(versions) == 1, f'manifest versions differ: {versions}'
+          print('manifests ok')
+          PY
+      - name: Submission ZIP builds
+        run: ./tools/build-zip.sh
       - name: SKILL.md has name and description front matter
         run: |
           f=skills/pairwise-design-judging/SKILL.md

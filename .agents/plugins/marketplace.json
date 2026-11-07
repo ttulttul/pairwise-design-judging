@@ -1,0 +1,20 @@
+{
+  "name": "pairwise-design-judging",
+  "interface": {
+    "displayName": "Pairwise Design Judging"
+  },
+  "plugins": [
+    {
+      "name": "pairwise-design-judging",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
