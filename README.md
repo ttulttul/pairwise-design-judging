@@ -18,6 +18,7 @@ skills/pairwise-design-judging/
   SKILL.md          the protocol: gate, screenshot, plan, judge, record, fit, decide
   scripts/plan.py   builds blind X/Y judging folders, order-swapped, with balanced judge models
   scripts/bt.py     Bradley–Terry fit, 90% bootstrap intervals, merge rule, bias diagnostics
+  examples/design-contest-recipe.md   a full multi-round contest, written by the skill from one prompt
 ```
 
 The scripts use only the Python 3 standard library.
@@ -112,6 +113,18 @@ Codex follows the same protocol (abridged):
 ```
 
 Each tool's sub-agents run only that vendor's models: Claude models in Claude Code, OpenAI models in Codex. Pass `--models` only the models your session can start. Mixing judge families (the setup the skill was built for) needs an orchestrator that can start both kinds of judge. If the plan names a model the session can't run, the agent should tell you rather than quietly substitute another model.
+
+### A full refinement contest from one prompt
+
+The skill covers judging, but one prompt can ask for a whole contest built around it: several designers per round, blind judges, a merge only when a candidate clearly beats what is already there, and a ladder that measures progress across rounds.
+
+```
+> /pairwise-design-judging Run a 24 hour refinement contest with three design models and three judges for {MY_WEBSITE}. Use mock fixtures to populate the interface. Explore and refine all pages and areas in each round. Use the models: `claude-sonnet-5-5`, `claude-opus-5-5`, and `claude-fable-5-2` as both designers and judges. Commit your work as you go and show the user sample screenshots from each round’s work by each judge along with identifying the winner.
+```
+
+`{MY_WEBSITE}` can be a Git repository URL, or simply the name of the project at the current project folder root. The agents work out which.
+
+[`examples/design-contest-recipe.md`](skills/pairwise-design-judging/examples/design-contest-recipe.md) is an example of what the skill can produce from that prompt: a site-independent recipe for the contest, covering parameters, roles, setup, the steps of each round, close calls, the ladder and stopping rules. It is an example of output rather than part of the protocol, and `SKILL.md` lists where its decision rules differ from what `bt.py` implements.
 
 ## Packaging
 

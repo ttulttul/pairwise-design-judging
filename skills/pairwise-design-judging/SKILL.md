@@ -7,7 +7,7 @@ description: Judge competing UI and design candidates with blind, order-swapped 
 
 Absolute scores fail in iterative design loops. A judge scoring one design alone has no reference, so after a few rounds every decent candidate gets the same score (a long run once saw 21 of 21 Claude judges give "8"), and each judge model scores on its own baseline (GPT judges ran about 1.2 points higher than Claude judges). Pairwise judging fixes both problems: a judge must say which of two designs is better, and a generous judge is generous to both sides.
 
-This skill covers the judging half of a loop. Designers, merging and deployment are up to the caller.
+This skill covers the judging half of a loop. Designers, merging and deployment are up to the caller. For a whole contest built around it, see [the example at the end](#example-a-full-contest-from-one-prompt).
 
 ## Protocol
 
@@ -106,3 +106,21 @@ These come from an overnight loop of 10 rounds, with three designers and 12 judg
 - Tell designers about rejected attempts and the defects that sank them. Ambitious passes otherwise reintroduce the same regressions.
 - Default-effort GPT designers produced token changes (around 20 lines). Set designer reasoning effort explicitly.
 - Two designers can collide on a shared preview port. Make the screenshot tool reuse only a server started from its own checkout.
+
+## Example: a full contest from one prompt
+[examples/design-contest-recipe.md](examples/design-contest-recipe.md) is an example of what this skill can produce when it is invoked with a prompt like this one:
+
+```
+/pairwise-design-judging Run a 24 hour refinement contest with three design models and three judges for {MY_WEBSITE}. Use mock fixtures to populate the interface. Explore and refine all pages and areas in each round. Use the models: `claude-sonnet-5-5`, `claude-opus-5-5`, and `claude-fable-5-2` as both designers and judges. Commit your work as you go and show the user sample screenshots from each round’s work by each judge along with identifying the winner.
+```
+
+`{MY_WEBSITE}` can be a Git repository URL, or simply the name of the project at the current project folder root. The agents work out which.
+
+The recipe is a site-independent description of the whole contest: the parameters to fix before round 1, the roles, the one-time setup, the steps of a round (brief, gate, capture, plan, judge, fit, merge or keep, ladder, digest), close calls, stopping rules and what to keep on disk.
+
+Read it as an example of output, not as part of the protocol above. It sets some decision rules of its own that `bt.py` does not implement:
+- a merge threshold on win confidence (0.90) instead of the lower-bound rule in step 7;
+- a veto when one view is clearly worse, and a separation threshold with a single head-to-head between two leading candidates;
+- a bootstrap that resamples views rather than order-swapped groups, and a third judge for strongly contradictory groups.
+
+An orchestrator that adopts those rules has to apply them itself. Otherwise use `bt.py`'s decision as it stands.

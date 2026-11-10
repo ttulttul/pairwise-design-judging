@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "pairwise-design-judging",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Judge competing UI and design candidates with blind, order-swapped pairwise comparisons and a Bradley–Terry fit instead of saturating 0–10 scores.",
   "author": {
     "name": "Ken Simpson",
